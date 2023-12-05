@@ -22,31 +22,42 @@ export default function Main() {
     }));
   };
   const handleSubmit = async (e) => {
-    e.preventDefault(); //Prevent default reloading
+    e.preventDefault(); // Prevent default reloading
     console.log(formData);
     setIsLoading(true);
+
     try {
       await firstStep({
         ...formData,
       });
+
+      const eventOut = await contract.events.getEvents("eventStepCreated");
+      console.log("Step created: ", eventOut);
+
+      let add = eventOut[eventOut.length - 1].data.addr;
+      console.log("Address: ", add);
+
+      // Check if any "emitError" event occurred
+      let errorEvent = "";
+      errorEvent = await contract.events.getEvents("emitError");
+      console.log(errorEvent);
+
+      if (errorEvent != "") {
+        // An error occurred
+        console.error("Error: ", errorEvent[0].data.text);
+        navigate("/dashboard/error");
+      } else {
+        // No error, proceed with navigation
+        navigate("/dashboard/track-product", { state: { add } });
+      }
     } catch (error) {
-      console.log("Error: ", error);
-    }
-
-    const eventGot = await contract.events.getEvents("emitError");
-    let errorMsg = "";
-    if (eventGot != "") {
-      errorMsg = eventGot[0].data.text;
-    }
-    setIsLoading(false);
-    if (errorMsg == "") {
-      navigate("/dashboard/track-product");
-    } else {
+      console.error("Error: ", error);
       navigate("/dashboard/error");
+    } finally {
+      setIsLoading(false);
     }
-
-    //
   };
+
   return (
     <>
       <div className="flex flex-col px-8 py-8">

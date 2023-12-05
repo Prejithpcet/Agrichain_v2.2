@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { img1, v6, v7 } from "../assets";
 import { useStateContext } from "../context";
 import { useNavigate } from "react-router-dom";
+import { log } from "console";
 
 export default function Right() {
   const navigate = useNavigate();
@@ -69,6 +70,9 @@ export default function Right() {
               <button disabled>Verify User</button>
             </div>
           )}
+          <div className="bg-[#00714F] mt-52 flex justify-center items-center text-white px-4 py-2 w-[200px] rounded-md font-semibold">
+            <button>Logout</button>
+          </div>
         </div>
       </div>
     </>

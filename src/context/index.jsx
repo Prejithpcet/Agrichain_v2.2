@@ -1,5 +1,5 @@
 import React, { useContext, createContext } from "react";
-import { ConnectWallet } from "@thirdweb-dev/react";
+//import { ConnectWallet } from "@thirdweb-dev/react";
 import {
   useAddress,
   useContract,
@@ -13,12 +13,8 @@ const StateContext = createContext();
 
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract(
-    "0x261E50f8f521bdb5176c12e642864041948FBA9a"
+    "0x3782ED30DCBC40D4DDCfA109D17f10C4D6fAf455"
   );
-  /*const { mutateAsync: createCampaign } = useContractWrite(
-    contract,
-    "createCampaign"
-  );*/
   const address = useAddress();
   const connect = useMetamask();
   const disconnect = useDisconnect();
@@ -42,6 +38,15 @@ export const StateContextProvider = ({ children }) => {
     return user;
   };
 
+  const verifyUserFn = async (address) => {
+    await contract.call("verifyUser", [address]);
+  };
+
+  const getUserArray = async () => {
+    const usersList = await contract.call("getAllUserDetails");
+    return usersList;
+  };
+
   const firstStep = async (formData) => {
     try {
       const firstStepData = await contract.call("createAFirstStep", [
@@ -54,6 +59,15 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  const getStepDetailsFn = async (add) => {
+    try {
+      const stepData = await contract.call("getStepDetails", [add]);
+      return stepData;
+    } catch (error) {
+      console.error("Error fetching step details:", error);
+    }
+  };
+
   return (
     <StateContext.Provider
       value={{
@@ -63,6 +77,9 @@ export const StateContextProvider = ({ children }) => {
         addUser,
         getUser,
         firstStep,
+        getUserArray,
+        verifyUserFn,
+        getStepDetailsFn,
       }}
     >
       {children}

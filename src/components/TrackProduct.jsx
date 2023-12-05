@@ -1,6 +1,45 @@
-//import React from 'react'
+// Import necessary dependencies and functions
+import React, { useState, useEffect } from "react";
 import { QRCode, Steps } from "antd";
+import { useLocation } from "react-router-dom";
+import { useStateContext } from "../context"; // Adjust the import path accordingly
+
 export default function TrackProduct() {
+  const location = useLocation();
+  const { add } = location.state; // Destructure getStepDetailsFn from location.state
+  const { contract, getStepDetailsFn } = useStateContext();
+
+  /*const [stepDetails, setStepDetails] = useState({
+    isLastStep: false,
+    isFirstStep: false,
+    isProcessedStep: false,
+    next: null,
+    prev: null,
+    owner: null,
+    step: "",
+    location: "",
+    description: "",
+    time: 0,
+  });*/
+
+  useEffect(() => {
+    // Function to fetch step details
+    const fetchStepDetails = async () => {
+      try {
+        // Call the contract function to get step details
+        const details = await getStepDetailsFn(add);
+
+        // Set the step details in the state
+        console.log("Step Data", details);
+      } catch (error) {
+        console.error("Error fetching step details:", error);
+      }
+    };
+
+    // Fetch step details when the component mounts
+    fetchStepDetails();
+  }, [contract, add]);
+
   return (
     <>
       <div className="flex flex-col justify-center items-center">
@@ -9,20 +48,18 @@ export default function TrackProduct() {
           Product Tracking
         </p>
         <div className="mt-10">
-          <QRCode value="https://www.cet.ac.in/" bgColor="#fff" />
+          <QRCode value={JSON.stringify(stepDetails)} bgColor="#fff" />
         </div>
         <div className="mt-5">
           <p>
             Id:{" "}
-            <span className="text-[#00714F] font-medium text-sm">
-              0x8236872e3f4452
-            </span>
+            <span className="text-[#00714F] font-medium text-sm">{add}</span>
           </p>
         </div>
         <div className="mt-20">
           <Steps
-            current={1}
-            percent={60}
+            current={1} // Adjust the current step based on your logic
+            percent={60} // Adjust the percent based on your logic
             items={[
               {
                 title: "Finished",
@@ -30,7 +67,6 @@ export default function TrackProduct() {
               },
               {
                 title: "Processing",
-                //subTitle: "Left 00:00:08",
                 description: "Verified and processed by the processor",
               },
               {
@@ -43,6 +79,11 @@ export default function TrackProduct() {
               },
             ]}
           />
+        </div>
+
+        {/* Display the fetched step details */}
+        <div className="mt-5">
+          <p>Step Details:</p>
         </div>
       </div>
     </>
